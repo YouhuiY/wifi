@@ -1,0 +1,17 @@
+#ifndef _AUX_
+#define _AUX_
+
+
+#include "ns3/address.h"
+
+using namespace ns3;
+  
+ int DC_nsta = 64; //number of delay-critical stations
+ int DT_nsta = 64; //number of delay-tolerant stations
+ Ipv4Address ap_one;
+ Ipv4Address DC_down;
+ Ipv4Address DC_up;
+ Ipv4Address DT_down;
+ Ipv4Address DT_up;
+
+#endif
