@@ -229,7 +229,7 @@ std::cout <<DCstaNodeInterface.GetAddress(0)<< std::endl;
    DC_up = DCstaNodeInterface.GetAddress(v - 1).m_address;
    DT_down = DTstaNodeInterface.GetAddress(0).m_address;
    DT_up = DTstaNodeInterface.GetAddress(v - 1).m_address;
-   std::cout <<DT_up<< std::endl;
+   //std::cout <<DT_up<< std::endl;
 
 
      // ApplicationContainer serverApp, DC_clientApps, DT_clientApps;
@@ -292,22 +292,10 @@ std::cout <<DCstaNodeInterface.GetAddress(0)<< std::endl;
     }
     else
     {
-      outData <<v<<"\t"<<v<<"\t" << T << std::endl;
+      outData <<"number of each devices: " << v << "total throughput: " << T << "DC delay: " << DC_DelayTime/nDCPacket << "DT delay: " << DT_DelayTime/nDTPacket << std::endl;
       outData.close();
     }
 
-    //add delay to files
-    std::ofstream delayData;
-    outData.open("/home/youhui/Downloads/ns-allinone-3.26/ns-3.26/scratch/delay_1.dat", std::ios::app);
-    if (!delayData)
-    {
-      std::cout <<"can not open the file"<< std::endl;
-    }
-    else
-    {
-      outData <<v<<"\t"<<DC_DelayTime/nDCPacket<<"\t" << DT_DelayTime/nDTPacket << std::endl;
-      outData.close();
-    }
     DT_DelayTime = 0;
     DC_DelayTime = 0;
     nDTPacket = 0;
