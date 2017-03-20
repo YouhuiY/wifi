@@ -15,8 +15,8 @@ using namespace ns3;
  uint32_t DC_up;
  uint32_t DT_down;
  uint32_t DT_up;
- uint64_t DC_DelayTime = 0;
- uint64_t DT_DelayTime = 0;
- uint64_t nDCPacket = 0;
- uint64_t nDTPacket = 0;
+// uint64_t DC_DelayTime = 0;
+ //uint64_t DT_DelayTime = 0;
+ //uint64_t R_nDCPacket = 0;
+ //uint64_t R_nDTPacket = 0;
 #endif
