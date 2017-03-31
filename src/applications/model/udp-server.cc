@@ -69,6 +69,7 @@ UdpServer::GetTypeId (void)
                     MakeTraceSourceAccessor (&UdpServer::DTDelay),
                     "ns3::Traced::Value::DT_Delay")
   ;
+ 
   return tid;
 }
 
@@ -182,18 +183,20 @@ UdpServer::HandleRead (Ptr<Socket> socket)
                            " RXtime: " << Simulator::Now () <<
                            " Delay: " << Simulator::Now () - seqTs.GetTs ());
               Ipv4Address ip = InetSocketAddress::ConvertFrom (from).GetIpv4 ();
+              
 //calculate the delay
               Time temp = Simulator::Now () - seqTs.GetTs ();
 //set the trace value              
-              if(ip.m_address<= DT_up && ip.m_address >= DT_down)
+              if(UdpServer::m_port == 9)
               {
                 DCDelay = temp;
               }
 
-              if(ip.m_address<= DT_up && ip.m_address >= DT_down)
+              if(UdpServer::m_port == 10)
               {
                 DTDelay = temp;
               }
+ //std::cout<<"tid "<< QosUtils::QosUtilsGetTidForPacket(packet)<<std::endl;
             }
           else if (Inet6SocketAddress::IsMatchingType (from))
             {
