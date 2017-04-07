@@ -7,14 +7,15 @@
 #include "ns3/trace-source-accessor.h"
 
 using namespace ns3;
-  
- int DC_nsta = 64; //number of delay-critical stations
- int DT_nsta = 64; //number of delay-tolerant stations
- uint32_t ap_one;
- uint32_t DC_down;
- uint32_t DC_up;
- uint32_t DT_down;
- uint32_t DT_up;
+
+uint32_t C_DC = 0;
+uint32_t C_DT= 0;
+
+//typedef void (* TracedCollisionDC) (uint32_t *oldValue, uint32_t *newValue); 
+//typedef void (* TracedCollisionDT) (uint32_t *oldValue, uint32_t *
+//TracedValue<uint32_t> DC_collisionTrace;
+//TracedValue<uint32_t> DT_collisionTrace;
+
 // uint64_t DC_DelayTime = 0;
  //uint64_t DT_DelayTime = 0;
  //uint64_t R_nDCPacket = 0;
