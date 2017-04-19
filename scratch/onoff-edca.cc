@@ -6,7 +6,7 @@
 #include "ns3/ipv4-global-routing-helper.h"
 #include "ns3/internet-module.h"
 #include <assert.h> 
-#include "/home/youhui/Downloads/ns-allinone-3.26/ns-3.26/includes/aux.hh"
+#include "ns3/aux.h"
 
 using namespace ns3;
 
@@ -20,14 +20,16 @@ uint32_t DTCOLLI;*/
 
 struct results DCR;
 struct results DTR;
+int n;
 //TracedCollisionDC
 void DC_Delay (struct results *R, Time oldValue, Time newValue)
 {
-
+  n++;
   uint64_t temp_new = newValue.GetMilliSeconds ();
   R->times = R->times * (double)R->packets + (double)temp_new;
   R->packets ++;
-  R->times = R->times / (double)R->packets;
+  R->times = (double)R->times / (double)R->packets;
+  std::cout << " simulation time: " <<Simulator::Now().GetMilliSeconds ()<< " packet number: "<< n << " delay for this packet " << temp_new<< " average delay from so far " <<R->times<<std::endl;
 }
 
 /*void TracedCollisionDC (uint32_t *R, uint32_t oldValue, uint32_t newValue)
@@ -55,21 +57,20 @@ NS_LOG_COMPONENT_DEFINE ("vht-wifi-network");
 int main (int argc, char *argv[])
 {
 
-    for(int v = 1; v < 64; v++)
+    /*for(int v =1; v < 28; v++)
     {
-        for(int i = 0; i < 5; i++) 
-        {
+        *///for(int i = 0; i < 10; i++) 
+        //{
 
-
-          uint32_t payloadSize = 1472;
-          double simulationTime = 10; //seconds
+          uint32_t payloadSize_DC = 200;
+          uint32_t payloadSize_DT = 1472;
+          double simulationTime = 60; //seconds
           double distance = 1.0; //meters
 
           uint32_t gi = 0;
           uint32_t mcs = 9;
-          uint32_t channelWidth = 20;
-
-
+          uint32_t channelWidth = 160;
+          int v = 17;
           NodeContainer wifiStaNode;
           wifiStaNode.Create (v);
           NodeContainer wifiApNode;
@@ -155,10 +156,10 @@ int main (int argc, char *argv[])
           InetSocketAddress dest_DC (apNodeInterface.GetAddress (0), 9);
           dest_DC.SetTos (0xe0); //AC_VO
 	  OnOffHelper Client_DC ("ns3::UdpSocketFactory", dest_DC);
-	  Client_DC.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=0.5]"));
-	  Client_DC.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=1]"));
-	  Client_DC.SetAttribute ("DataRate", StringValue("1000kb/s"));
-	  Client_DC.SetAttribute ("PacketSize", UintegerValue(payloadSize));
+	  Client_DC.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1]"));
+	  Client_DC.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=4]"));
+	  Client_DC.SetAttribute ("DataRate", StringValue("16kb/s"));
+	  Client_DC.SetAttribute ("PacketSize", UintegerValue(payloadSize_DC));
 
 
 //delay tolerant udpclient
@@ -166,8 +167,8 @@ int main (int argc, char *argv[])
           dest_DT.SetTos (0x70); //AC_BE
           UdpClientHelper Client_DT (dest_DT);
           Client_DT.SetAttribute ("MaxPackets", UintegerValue (4294967295u));
-          Client_DT.SetAttribute ("Interval", TimeValue (Time ("0.0011778"))); //packets/s
-          Client_DT.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+          Client_DT.SetAttribute ("Interval", TimeValue (Time ("0.01"))); //packets/s
+          Client_DT.SetAttribute ("PacketSize", UintegerValue (payloadSize_DT));
 
           ApplicationContainer clientApp;
           clientApp.Add (Client_DC.Install (wifiStaNode));
@@ -193,13 +194,13 @@ int main (int argc, char *argv[])
           double throughput_DT = 0;
                 
           uint32_t totalPacketsThrough_DC = DynamicCast<UdpServer> (serverApp.Get (0))->GetReceived ();
-          throughput_DC = totalPacketsThrough_DC * payloadSize * 8 / (simulationTime * 1000000.0); //Mbit/s
+          throughput_DC = totalPacketsThrough_DC * payloadSize_DC * 8 / (simulationTime * 1000000.0); //Mbit/s
           uint32_t totalPacketsThrough_DT = DynamicCast<UdpServer> (serverApp.Get (1))->GetReceived ();
-          throughput_DT = totalPacketsThrough_DT * payloadSize * 8 / (simulationTime * 1000000.0); //Mbit/s
+          throughput_DT = totalPacketsThrough_DT * payloadSize_DT * 8 / (simulationTime * 1000000.0); //Mbit/s
 
           
           std::ofstream outData;
-          outData.open("/home/youhui/Downloads/ns-allinone-3.26/ns-3.26/scratch/onoff-BE.dat", std::ios::app);
+          outData.open("/home/youhui/Downloads/ns-allinone-3.26/ns-3.26/scratch/onoff-edca_.dat", std::ios::app);
          
           if (!outData)
           {
@@ -207,8 +208,9 @@ int main (int argc, char *argv[])
           }
          else
          {
-            std::cout  << v << " " << throughput_DC <<" " << throughput_DT <<" "<<DCR.times<<" "<<DTR.times << " " << C_DC << " " << C_DT << std::endl;
-            outData  << v << " " << throughput_DC <<" " << throughput_DT <<" "<<DCR.times<<" "<<DTR.times << " " << C_DC << " " << C_DT<< std::endl;
+            std::cout  << v << " " << throughput_DC <<" " << throughput_DT <<" "<<DCR.times<<" "<<DTR.times << " " << C_DC/simulationTime << " " << C_DT/simulationTime<<" " <<DCR.packets/(simulationTime*2*v) <<" " << DTR.packets/(simulationTime*100*v) << std::endl;
+            outData << v << " " << throughput_DC <<" " << throughput_DT <<" "<<DCR.times<<" "<<DTR.times << " " << C_DC/simulationTime << " " << C_DT/simulationTime<<" " <<DCR.packets/(simulationTime*2*v) <<" " << DTR.packets/(simulationTime*100*v) << std::endl;
+           // outData  << v << " " << throughput_DC <<" " << throughput_DT <<" "<<DCR.times<<" "<<DTR.times << " " << C_DC << " " << C_DT<< std::endl;
             outData.close();
          };
          DCR.times = 0;
@@ -217,8 +219,12 @@ int main (int argc, char *argv[])
          DTR .packets = 0;
          C_DC = 0;
          C_DT = 0;
-      }
- }
+         tempCollisionDC = 0;
+	 collisionDCStore = 0;
+	 lastTime = 0;
+	 beforeLastTime = 0;
+     // }
+ //}
   return 0;
 }
 
