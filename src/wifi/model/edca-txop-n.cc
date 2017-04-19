@@ -36,7 +36,7 @@
 #include "mgt-headers.h"
 #include "qos-blocked-destinations.h"
 #include "ns3/simulator.h"
-#include "/home/youhui/Downloads/ns-allinone-3.26/ns-3.26/includes/aux.hh"
+#include "ns3/aux.h"
 
 #undef NS_LOG_APPEND_CONTEXT
 #define NS_LOG_APPEND_CONTEXT if (m_low != 0) { std::clog << "[mac=" << m_low->GetAddress () << "] "; }
@@ -750,6 +750,7 @@ EdcaTxopN::NotifyCollision (void)
   if(m_ac == 3)
   {
      C_DC++;
+     tempCollisionDC++;
   }
    if(m_ac == 0 )
    {
@@ -940,7 +941,8 @@ EdcaTxopN::GotAck (double snr, WifiMode txMode)
         {
           m_txOkCallback (m_currentHdr);
         }
-      // std::cout<< "Qos: "<< std::hex<<(int)m_currentHdr.GetQosTid()<<std::endl;
+   int trafficType = (int)m_currentHdr.GetQosTid();
+       //std::cout<< "Qos: "<< (int)m_currentHdr.GetQosTid()<<std::endl;
      //  std::cout << " tid: "<< m_currentHdr.GetQosTxopLimit () <<std::endl;
       if (m_currentHdr.IsAction ())
         {
@@ -963,7 +965,22 @@ EdcaTxopN::GotAck (double snr, WifiMode txMode)
             }
         }
       m_currentPacket = 0;
-      m_dcf->ResetCw ();
+      if( trafficType == 7)
+      {
+          beforeLastTime = lastTime;
+          lastTime = Simulator::Now().GetMilliSeconds ();
+      }
+       m_dcf->lastTime = lastTime;
+       m_dcf->beforeLastTime = beforeLastTime;
+       m_dcf->collisionDCStore = collisionDCStore;
+       m_dcf->tempCollisionDC = tempCollisionDC;
+       m_dcf->ResetCw ();
+       if(trafficType == 7)
+       {
+          collisionDCStore = (tempCollisionDC + collisionDCStore)/2;
+
+       }
+        tempCollisionDC = 0;
       if (!HasTxop ())
         {
           m_cwTrace = m_dcf->GetCw ();
