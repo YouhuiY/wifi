@@ -175,7 +175,7 @@ public:
 
   Ptr<MsduAggregator> GetMsduAggregator (void) const;
   Ptr<MpduAggregator> GetMpduAggregator (void) const;
-
+//
   /**
    * \param recipient address of the peer station
    * \param tid traffic ID.
